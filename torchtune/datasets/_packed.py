@@ -96,7 +96,7 @@ class PackedDataset(Dataset):
         self.max_seq_len = max_seq_len
         self.padding_idx = padding_idx
         self.max_packs = max_packs
-        self.split_across_pack = split_across_pack
+        self.split_across_pack = True
         # Where final samples will be held
         self.packs: List[PACK_TYPE] = []
         self.previous_sample_boundary: int = 0

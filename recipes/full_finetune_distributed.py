@@ -134,6 +134,7 @@ class FullFinetuneRecipeDistributed(FTRecipeInterface):
         self.total_epochs = cfg.epochs
         self.max_steps_per_epoch = cfg.max_steps_per_epoch
         self.global_step = 0
+        self.save_last_checkpoint = cfg.get("save_last_checkpoint", True)
 
     def load_checkpoint(self, cfg_checkpointer: DictConfig) -> Dict[str, Any]:
         """
@@ -568,7 +569,8 @@ class FullFinetuneRecipeDistributed(FTRecipeInterface):
                     t0 = time.perf_counter()
 
             self.epochs_run += 1
-            self.save_checkpoint(epoch=curr_epoch)
+            if self.save_last_checkpoint:
+                self.save_checkpoint(epoch=curr_epoch)
 
     def cleanup(self) -> None:
         if self._is_rank_zero:

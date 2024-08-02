@@ -138,6 +138,7 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
         self._resume_from_checkpoint = cfg.resume_from_checkpoint
         self._save_adapter_weights_only = cfg.get("save_adapter_weights_only", False)
         self._gradient_accumulation_steps = cfg.gradient_accumulation_steps
+        self.save_last_checkpoint = cfg.get("save_last_checkpoint", True)
 
     def load_checkpoint(self, cfg_checkpointer: DictConfig) -> Dict[str, Any]:
         """
@@ -720,7 +721,8 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                     self._profiler.step()
 
             self.epochs_run += 1
-            self.save_checkpoint(epoch=curr_epoch)
+            if self.save_last_checkpoint:
+                self.save_checkpoint(epoch=curr_epoch)
 
         self._profiler.stop()
 
