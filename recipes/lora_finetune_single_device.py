@@ -541,12 +541,35 @@ class LoRAFinetuneRecipeSingleDevice(FTRecipeInterface):
         logits = logits[..., :-1, :].contiguous()
         labels = labels[..., 1:].contiguous()
         logits = logits.transpose(1, 2)
+
         # Compute loss
         loss = self._loss_fn(logits, labels)
         # free logits otherwise it peaks backward memory
         del logits
 
         return loss
+
+        # #### version 1
+        # # chunk_size=512
+        # # logit_chunks = list(logits.split(chunk_size, dim=-1))
+        # # label_chunks = list(labels.split(label_chunk, dim=-1))
+
+        # # # Compute loss
+        # # loss = 0
+        # # for i in reversed(range(len(logit_chunks))):
+        # #     logit_chunk = logit_chunks.pop()
+        # #     label_chunk = label_chunks[i]
+        # #     loss += self._loss_fn(logit_chunk, label_chunk)
+        # #     del logit_chunk, label_chunk
+
+        # #### version 2
+        # chunk_size=128
+        # logit_chunks = logits.split(chunk_size, dim=-1)
+        # label_chunks = labels.split(chunk_size, dim=-1)
+
+        # # Compute loss
+        # loss = [self._loss_fn(logit_chunk, label_chunk) for logit_chunk, label_chunk in zip(logit_chunks, label_chunks)]
+        # loss = torch.stack(loss).sum()
 
     def train(self) -> None:
         """
